@@ -1,0 +1,212 @@
+"use client"
+
+import { useState, useRef, useEffect } from "react"
+import { motion } from "framer-motion"
+import { Button } from "@/components/ui/button"
+import { Play, Pause, Volume2, VolumeX, ArrowDown } from "lucide-react"
+import Link from "next/link"
+
+export function Hero() {
+  const [isMuted, setIsMuted] = useState(true)
+  const [isPlaying, setIsPlaying] = useState(true)
+  const [isLoaded, setIsLoaded] = useState(false)
+  const videoRef = useRef<HTMLVideoElement>(null)
+
+  useEffect(() => {
+    setIsLoaded(true)
+  }, [])
+
+  const togglePlay = () => {
+    if (videoRef.current) {
+      if (isPlaying) {
+        videoRef.current.pause()
+      } else {
+        videoRef.current.play()
+      }
+      setIsPlaying(!isPlaying)
+    }
+  }
+
+  const toggleMute = () => {
+    if (videoRef.current) {
+      videoRef.current.muted = !isMuted
+      setIsMuted(!isMuted)
+    }
+  }
+
+  const scrollToContent = () => {
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })
+  }
+
+  return (
+    <section className="relative h-screen min-h-[700px] overflow-hidden bg-primary">
+      {/* Video Background */}
+      <div className="absolute inset-0">
+        <video
+          ref={videoRef}
+          autoPlay
+          loop
+          muted={isMuted}
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover scale-105"
+          poster="/images/hero-stadium.jpg"
+        >
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-aerial-view-of-a-soccer-field-at-sunset-48979-large.mp4" type="video/mp4" />
+        </video>
+        <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/50 to-black/80" />
+        <div className="absolute inset-0 bg-primary/20 mix-blend-multiply" />
+      </div>
+
+      {/* Main Content */}
+      <div className="relative h-full flex flex-col justify-center">
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 xl:px-20 w-full">
+          <div className="max-w-4xl">
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.2 }}
+              className="mb-8"
+            >
+              <span className="inline-block px-4 py-2 bg-white/10 backdrop-blur-sm text-white text-xs font-semibold tracking-[0.25em] uppercase">
+                Desde 1970 en Villar del Olmo
+              </span>
+            </motion.div>
+
+            {/* Title */}
+            <motion.h1
+              initial={{ opacity: 0, y: 40 }}
+              animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="text-display text-white mb-8"
+            >
+              <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
+                PASIÓN
+              </span>
+              <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl text-white/40">
+                POR EL
+              </span>
+              <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl xl:text-9xl">
+                FÚTBOL
+              </span>
+            </motion.h1>
+
+            {/* Description */}
+            <motion.p
+              initial={{ opacity: 0, y: 30 }}
+              animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.5 }}
+              className="text-white/70 text-lg md:text-xl max-w-xl mb-12 leading-relaxed font-light"
+            >
+              Más de 50 años formando futbolistas y personas. 
+              El club de referencia del fútbol base en la comarca.
+            </motion.p>
+
+            {/* CTAs */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+              transition={{ duration: 0.6, delay: 0.7 }}
+              className="flex flex-wrap gap-4"
+            >
+              <Link href="/club">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    className="bg-white text-primary hover:bg-white/95 text-sm font-semibold tracking-[0.1em] px-8 py-6 h-auto group"
+                  >
+                    CONOCE EL CLUB
+                    <ArrowDown className="ml-3 h-4 w-4 rotate-[-90deg] transition-transform group-hover:translate-x-1" />
+                  </Button>
+                </motion.div>
+              </Link>
+              <Link href="/socios">
+                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+                  <Button
+                    size="lg"
+                    variant="outline"
+                    className="border-white/30 text-white hover:bg-white/10 text-sm font-semibold tracking-[0.1em] px-8 py-6 h-auto"
+                  >
+                    ÚNETE AL CLUB
+                  </Button>
+                </motion.div>
+              </Link>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Video Controls */}
+      <motion.div 
+        initial={{ opacity: 0 }}
+        animate={isLoaded ? { opacity: 1 } : {}}
+        transition={{ delay: 1 }}
+        className="absolute bottom-8 right-8 flex gap-2"
+      >
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={togglePlay}
+          className="p-3 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
+          aria-label={isPlaying ? "Pausar video" : "Reproducir video"}
+        >
+          {isPlaying ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
+        </motion.button>
+        <motion.button
+          whileHover={{ scale: 1.1 }}
+          whileTap={{ scale: 0.9 }}
+          onClick={toggleMute}
+          className="p-3 bg-white/10 backdrop-blur-md text-white hover:bg-white/20 transition-colors"
+          aria-label={isMuted ? "Activar sonido" : "Silenciar"}
+        >
+          {isMuted ? <VolumeX className="h-4 w-4" /> : <Volume2 className="h-4 w-4" />}
+        </motion.button>
+      </motion.div>
+
+      {/* Scroll indicator */}
+      <motion.button
+        initial={{ opacity: 0, y: -20 }}
+        animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+        transition={{ delay: 1.2 }}
+        onClick={scrollToContent}
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 hidden md:flex flex-col items-center gap-3 text-white/50 hover:text-white transition-colors cursor-pointer group"
+      >
+        <span className="text-xs tracking-[0.2em] uppercase">Scroll</span>
+        <motion.div
+          animate={{ y: [0, 8, 0] }}
+          transition={{ duration: 1.5, repeat: Infinity }}
+        >
+          <ArrowDown className="h-5 w-5" />
+        </motion.div>
+      </motion.button>
+
+      {/* Stats Bar */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        animate={isLoaded ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.6, delay: 0.9 }}
+        className="absolute bottom-0 left-0 right-0 bg-white/5 backdrop-blur-xl border-t border-white/10"
+      >
+        <div className="max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
+          <div className="grid grid-cols-2 md:grid-cols-4 divide-x divide-white/10">
+            {[
+              { number: "1970", label: "Año fundación" },
+              { number: "500+", label: "Jugadores formados" },
+              { number: "12", label: "Equipos activos" },
+              { number: "50+", label: "Años de historia" },
+            ].map((stat, i) => (
+              <div key={i} className="py-6 px-4 md:px-8 text-center">
+                <div className="text-2xl md:text-3xl font-bold text-white tracking-tight">
+                  {stat.number}
+                </div>
+                <div className="text-xs text-white/50 tracking-[0.1em] uppercase mt-1">
+                  {stat.label}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </motion.div>
+    </section>
+  )
+}
