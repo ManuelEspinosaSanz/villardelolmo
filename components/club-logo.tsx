@@ -2,12 +2,12 @@ import { cn } from "@/lib/utils"
 
 interface ClubLogoProps {
   className?: string
-  variant?: "default" | "white"
+  variant?: "default" | "white" | "light"
 }
 
 export function ClubLogo({ className, variant = "default" }: ClubLogoProps) {
-  const primaryColor = variant === "white" ? "#ffffff" : "currentColor"
-  const secondaryColor = variant === "white" ? "#2a4a2e" : "#ffffff"
+  const primaryColor = variant === "white" || variant === "light" ? "#ffffff" : "currentColor"
+  const secondaryColor = variant === "white" || variant === "light" ? "#2a4a2e" : "#ffffff"
   
   return (
     <svg

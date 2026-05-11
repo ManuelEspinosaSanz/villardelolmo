@@ -1,9 +1,12 @@
+"use client"
+
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
-import { Check } from "lucide-react"
+import { Check, ArrowRight, Star, Users, Trophy, Heart } from "lucide-react"
 import Link from "next/link"
-import { ArrowLeft } from "lucide-react"
+import { FadeIn, StaggerContainer, ScaleIn } from "@/components/motion"
+import { cn } from "@/lib/utils"
 
 const plans = [
   {
@@ -12,120 +15,210 @@ const plans = [
     description: "Apoya al club desde cualquier lugar",
     features: [
       "Carnet de socio digital",
-      "Newsletter mensual",
-      "10% descuento en tienda",
+      "Newsletter exclusiva mensual",
+      "10% descuento en tienda oficial",
+      "Acceso a contenido exclusivo",
     ],
+    icon: Heart,
   },
   {
     name: "Adulto",
     price: "60",
-    description: "Membresía completa para mayores de 18",
+    description: "La experiencia completa del club",
     features: [
-      "Carnet físico y digital",
-      "Entrada gratuita a partidos",
-      "20% descuento en tienda",
-      "Voto en Asamblea",
-      "Descuentos en actividades",
+      "Carnet físico y digital premium",
+      "Entrada gratuita a todos los partidos",
+      "20% descuento en tienda oficial",
+      "Derecho a voto en Asamblea",
+      "Descuentos en actividades y campus",
+      "Acceso preferente a eventos",
     ],
     highlighted: true,
+    icon: Star,
   },
   {
     name: "Juvenil",
     price: "25",
-    description: "Para menores de 18 años",
+    description: "Para los futuros cracks (< 18 años)",
     features: [
       "Carnet físico y digital",
       "Entrada gratuita a partidos",
-      "15% descuento en tienda",
-      "Actividades especiales",
+      "15% descuento en tienda oficial",
+      "Actividades y talleres especiales",
+      "Sorteos exclusivos",
     ],
+    icon: Trophy,
   },
 ]
 
-export const metadata = {
-  title: "Hazte Socio | UD Villar del Olmo",
-  description: "Únete a la familia verdiblanca y disfruta de ventajas exclusivas.",
-}
+const benefits = [
+  {
+    icon: Users,
+    title: "Comunidad",
+    description: "Forma parte de una familia con más de 50 años de historia"
+  },
+  {
+    icon: Trophy,
+    title: "Experiencias",
+    description: "Vive el fútbol desde dentro con acceso exclusivo"
+  },
+  {
+    icon: Heart,
+    title: "Apoyo",
+    description: "Tu aportación hace posible el deporte en nuestro pueblo"
+  },
+]
 
 export default function SociosPage() {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
       <main className="flex-1 pt-20">
-        {/* Header */}
-        <section className="py-16 md:py-24 border-b border-border">
-          <div className="max-w-7xl mx-auto px-6 lg:px-8">
-            <Link 
-              href="/" 
-              className="inline-flex items-center text-muted-foreground hover:text-foreground mb-8 text-sm transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al inicio
-            </Link>
-            <h1 className="text-5xl md:text-6xl font-bold text-foreground tracking-tight">
-              Hazte Socio
-            </h1>
-            <p className="text-muted-foreground text-lg mt-4 max-w-xl">
-              Únete a la familia verdiblanca y apoya a tu club.
-            </p>
+        {/* Hero */}
+        <section className="relative py-24 md:py-32 overflow-hidden">
+          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-primary/10" />
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/5 rounded-full blur-3xl" />
+          
+          <div className="relative max-w-7xl mx-auto px-6 lg:px-8">
+            <StaggerContainer className="text-center max-w-3xl mx-auto">
+              <FadeIn>
+                <span className="inline-block px-4 py-2 bg-primary/10 text-primary text-sm font-semibold tracking-wider uppercase rounded-full mb-6">
+                  Hazte Socio
+                </span>
+              </FadeIn>
+              <FadeIn>
+                <h1 className="text-5xl md:text-7xl font-black text-foreground tracking-tight leading-none mb-6">
+                  Únete a la
+                  <span className="block text-primary">Familia Verde</span>
+                </h1>
+              </FadeIn>
+              <FadeIn>
+                <p className="text-xl text-muted-foreground max-w-xl mx-auto">
+                  Más que un club, una comunidad. Tu apoyo hace posible que sigamos formando deportistas y creando recuerdos.
+                </p>
+              </FadeIn>
+            </StaggerContainer>
           </div>
         </section>
 
-        {/* Plans */}
-        <section className="py-16 md:py-24">
-          <div className="max-w-5xl mx-auto px-6 lg:px-8">
+        {/* Benefits */}
+        <section className="py-16 border-y border-border bg-muted/30">
+          <div className="max-w-7xl mx-auto px-6 lg:px-8">
             <div className="grid md:grid-cols-3 gap-8">
-              {plans.map((plan, index) => (
-                <div 
-                  key={index}
-                  className={`p-8 border ${plan.highlighted ? 'border-primary bg-primary/5' : 'border-border'}`}
-                >
-                  <h3 className="text-xl font-bold text-foreground mb-2">
-                    {plan.name}
-                  </h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    {plan.description}
-                  </p>
-                  <div className="mb-6">
-                    <span className="text-4xl font-bold text-foreground">{plan.price}</span>
-                    <span className="text-muted-foreground">/año</span>
+              {benefits.map((benefit, index) => (
+                <FadeIn key={index} delay={index * 0.1}>
+                  <div className="flex items-start gap-4 p-6">
+                    <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center shrink-0">
+                      <benefit.icon className="w-6 h-6 text-primary" />
+                    </div>
+                    <div>
+                      <h3 className="font-bold text-foreground mb-1">{benefit.title}</h3>
+                      <p className="text-sm text-muted-foreground">{benefit.description}</p>
+                    </div>
                   </div>
-                  <ul className="space-y-3 mb-8">
-                    {plan.features.map((feature, i) => (
-                      <li key={i} className="flex items-start gap-3 text-sm">
-                        <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                        <span className="text-foreground">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/contacto">
-                    <Button 
-                      className="w-full"
-                      variant={plan.highlighted ? "default" : "outline"}
-                    >
-                      Solicitar
-                    </Button>
-                  </Link>
-                </div>
+                </FadeIn>
               ))}
             </div>
           </div>
         </section>
 
-        {/* Already member */}
-        <section className="py-16 md:py-24 bg-muted/30 border-t border-border">
-          <div className="max-w-2xl mx-auto px-6 lg:px-8 text-center">
-            <h2 className="text-2xl font-bold text-foreground mb-4">
-              ¿Ya eres socio?
-            </h2>
-            <p className="text-muted-foreground mb-8">
-              Accede a tu área personal para gestionar tu membresía.
-            </p>
-            <Link href="/socios/login">
-              <Button variant="outline" size="lg">
-                Acceder
-              </Button>
-            </Link>
+        {/* Plans */}
+        <section className="py-24 md:py-32">
+          <div className="max-w-6xl mx-auto px-6 lg:px-8">
+            <FadeIn className="text-center mb-16">
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
+                Elige tu plan
+              </h2>
+              <p className="text-muted-foreground">
+                Selecciona la opción que mejor se adapte a ti
+              </p>
+            </FadeIn>
+
+            <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+              {plans.map((plan, index) => (
+                <ScaleIn key={index} delay={index * 0.1}>
+                  <div 
+                    className={cn(
+                      "relative h-full p-8 rounded-3xl border-2 transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 group",
+                      plan.highlighted 
+                        ? "border-primary bg-gradient-to-b from-primary/10 to-transparent shadow-xl" 
+                        : "border-border hover:border-primary/50 bg-card"
+                    )}
+                  >
+                    {plan.highlighted && (
+                      <div className="absolute -top-4 left-1/2 -translate-x-1/2 px-4 py-1 bg-primary text-primary-foreground text-xs font-bold tracking-wider uppercase rounded-full">
+                        Popular
+                      </div>
+                    )}
+
+                    <div className="w-14 h-14 rounded-2xl bg-primary/10 flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
+                      <plan.icon className="w-7 h-7 text-primary" />
+                    </div>
+
+                    <h3 className="text-2xl font-bold text-foreground mb-2">
+                      {plan.name}
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      {plan.description}
+                    </p>
+
+                    <div className="flex items-baseline gap-1 mb-8">
+                      <span className="text-5xl font-black text-foreground">{plan.price}</span>
+                      <span className="text-muted-foreground font-medium">/año</span>
+                    </div>
+
+                    <ul className="space-y-4 mb-8">
+                      {plan.features.map((feature, i) => (
+                        <li key={i} className="flex items-start gap-3">
+                          <div className="w-5 h-5 rounded-full bg-primary/10 flex items-center justify-center shrink-0 mt-0.5">
+                            <Check className="h-3 w-3 text-primary" />
+                          </div>
+                          <span className="text-sm text-foreground">{feature}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    <Link href="/contacto" className="block">
+                      <Button 
+                        className={cn(
+                          "w-full h-12 rounded-xl font-semibold group/btn transition-all",
+                          plan.highlighted 
+                            ? "bg-primary hover:bg-primary/90 text-primary-foreground shadow-lg shadow-primary/25" 
+                            : "bg-foreground hover:bg-foreground/90 text-background"
+                        )}
+                      >
+                        Solicitar ahora
+                        <ArrowRight className="ml-2 h-4 w-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </Button>
+                    </Link>
+                  </div>
+                </ScaleIn>
+              ))}
+            </div>
+          </div>
+        </section>
+
+        {/* Already member CTA */}
+        <section className="py-24 bg-foreground text-background">
+          <div className="max-w-4xl mx-auto px-6 lg:px-8 text-center">
+            <FadeIn>
+              <h2 className="text-3xl md:text-4xl font-bold mb-4">
+                ¿Ya eres socio?
+              </h2>
+              <p className="text-background/70 mb-8 text-lg">
+                Accede a tu área personal para gestionar tu membresía, ver tu historial y mucho más.
+              </p>
+              <Link href="/socios/login">
+                <Button 
+                  size="lg" 
+                  variant="outline"
+                  className="h-14 px-8 rounded-xl border-2 border-background/20 bg-transparent text-background hover:bg-background hover:text-foreground transition-all font-semibold"
+                >
+                  Acceder a mi cuenta
+                  <ArrowRight className="ml-2 h-4 w-4" />
+                </Button>
+              </Link>
+            </FadeIn>
           </div>
         </section>
       </main>

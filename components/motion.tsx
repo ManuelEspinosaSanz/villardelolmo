@@ -130,6 +130,39 @@ export function StaggerItem({
   )
 }
 
+interface ScaleInProps {
+  children: ReactNode
+  className?: string
+  delay?: number
+  duration?: number
+}
+
+export function ScaleIn({ 
+  children, 
+  className = "",
+  delay = 0,
+  duration = 0.5
+}: ScaleInProps) {
+  const ref = useRef(null)
+  const isInView = useInView(ref, { once: true, margin: "-50px" })
+
+  return (
+    <motion.div
+      ref={ref}
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={isInView ? { opacity: 1, scale: 1 } : {}}
+      transition={{ 
+        duration, 
+        delay,
+        ease: [0.25, 0.4, 0.25, 1]
+      }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  )
+}
+
 interface ScaleOnHoverProps {
   children: ReactNode
   className?: string

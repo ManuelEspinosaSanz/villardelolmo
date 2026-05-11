@@ -147,15 +147,6 @@ export function Footer() {
           </div>
         </div>
       </div>
-
-      {/* Giant Logo Watermark */}
-      <div className="border-t border-background/10 py-12 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
-          <div className="text-7xl md:text-9xl lg:text-[12rem] font-bold text-background/5 tracking-tighter text-center">
-            UDVDO
-          </div>
-        </div>
-      </div>
     </footer>
   )
 }
