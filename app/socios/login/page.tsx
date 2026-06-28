@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { Suspense, useState } from "react"
 import { useRouter, useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
@@ -14,6 +14,14 @@ import { FadeIn, StaggerContainer, ScaleIn } from "@/components/motion"
 import { signIn } from "@/lib/supabase/auth-client"
 
 export default function LoginSociosPage() {
+  return (
+    <Suspense fallback={null}>
+      <LoginSociosForm />
+    </Suspense>
+  )
+}
+
+function LoginSociosForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
