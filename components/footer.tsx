@@ -1,15 +1,14 @@
 "use client"
 
 import Link from "next/link"
-import { motion } from "framer-motion"
 import { ClubLogo } from "./club-logo"
-import { Instagram, Facebook, Twitter, ArrowUpRight } from "lucide-react"
+import { ArrowUpRight } from "lucide-react"
 
 const navigation = {
   principal: [
     { name: "Inicio", href: "/" },
     { name: "Noticias", href: "/noticias" },
-    { name: "El Club", href: "/club" },
+    { name: "Historia", href: "/historia" },
     { name: "Contacto", href: "/contacto" },
   ],
   socios: [
@@ -19,14 +18,9 @@ const navigation = {
   legal: [
     { name: "Aviso Legal", href: "/aviso-legal" },
     { name: "Privacidad", href: "/privacidad" },
+    { name: "Cookies", href: "/cookies" },
   ],
 }
-
-const socials = [
-  { name: "Instagram", icon: Instagram, href: "#" },
-  { name: "Facebook", icon: Facebook, href: "#" },
-  { name: "Twitter", icon: Twitter, href: "#" },
-]
 
 export function Footer() {
   return (
@@ -49,24 +43,9 @@ export function Footer() {
                 </div>
               </Link>
               <p className="text-background/60 leading-relaxed max-w-sm mb-8">
-                Formando futbolistas y personas en el corazón de Madrid desde 1970. 
+                Formando futbolistas y personas en el corazón de Madrid desde 1970.
                 Más de 50 años de historia y pasión por el fútbol base.
               </p>
-              {/* Socials */}
-              <div className="flex gap-2">
-                {socials.map((social) => (
-                  <motion.a
-                    key={social.name}
-                    href={social.href}
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className="w-11 h-11 flex items-center justify-center bg-background/10 hover:bg-background hover:text-foreground transition-colors"
-                    aria-label={social.name}
-                  >
-                    <social.icon className="h-5 w-5" />
-                  </motion.a>
-                ))}
-              </div>
             </div>
 
             {/* Navigation */}
@@ -144,15 +123,6 @@ export function Footer() {
                 {item.name}
               </Link>
             ))}
-          </div>
-        </div>
-      </div>
-
-      {/* Giant Logo Watermark */}
-      <div className="border-t border-background/10 py-12 overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
-          <div className="text-7xl md:text-9xl lg:text-[12rem] font-bold text-background/5 tracking-tighter text-center">
-            UDVDO
           </div>
         </div>
       </div>

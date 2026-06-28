@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -8,28 +9,77 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
   ArrowLeft,
-  Image as ImageIcon,
   Save,
   Eye,
-  Upload,
-  CheckCircle
+  CheckCircle,
+  AlertCircle,
+  Loader2
 } from "lucide-react"
+import { createClient } from "@/lib/supabase/client"
+import { ImageUploadField } from "@/components/admin/image-upload-field"
+
+function generateSlug(title: string): string {
+  return title
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9\s-]/g, "")
+    .replace(/\s+/g, "-")
+    .replace(/-+/g, "-")
+    .trim()
+}
 
 export default function NuevaNoticiaPage() {
+  const router = useRouter()
+  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     titulo: "",
     extracto: "",
     contenido: "",
-    categoria: "Club",
-    estado: "borrador",
-    imagenDestacada: ""
+    publicada: false,
+    destacada: false,
+    imagen_principal: ""
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    setSaving(true)
+    setError(null)
+
+    try {
+      const supabase = createClient()
+      
+      const slug = generateSlug(formData.titulo)
+      
+      const { error: insertError } = await supabase
+        .from("noticias")
+        .insert({
+          titulo: formData.titulo,
+          slug: slug,
+          extracto: formData.extracto || null,
+          contenido: formData.contenido,
+          publicada: formData.publicada,
+          destacada: formData.destacada,
+          imagen_principal: formData.imagen_principal || null,
+          fecha_publicacion: formData.publicada
+            ? new Date().toISOString().split("T")[0]
+            : null
+        })
+
+      if (insertError) throw insertError
+
+      setSaved(true)
+      setTimeout(() => {
+        router.push("/admin/noticias")
+      }, 1500)
+    } catch (err) {
+      console.log("[v0] Error creating noticia:", err)
+      setError(err instanceof Error ? err.message : "Error al guardar la noticia")
+    } finally {
+      setSaving(false)
+    }
   }
 
   return (
@@ -51,12 +101,6 @@ export default function NuevaNoticiaPage() {
             <p className="text-zinc-600">Crea una nueva noticia para el sitio</p>
           </div>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" className="gap-2">
-            <Eye className="w-4 h-4" />
-            Vista previa
-          </Button>
-        </div>
       </motion.div>
 
       {/* Success */}
@@ -67,7 +111,19 @@ export default function NuevaNoticiaPage() {
           className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3"
         >
           <CheckCircle className="w-5 h-5 text-green-600" />
-          <span className="text-green-800 font-medium">Noticia guardada correctamente</span>
+          <span className="text-green-800 font-medium">Noticia guardada correctamente. Redirigiendo...</span>
+        </motion.div>
+      )}
+
+      {/* Error */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <span className="text-red-800 font-medium">{error}</span>
         </motion.div>
       )}
 
@@ -140,57 +196,53 @@ export default function NuevaNoticiaPage() {
                 <div className="space-y-2">
                   <Label>Estado</Label>
                   <select
-                    value={formData.estado}
-                    onChange={(e) => setFormData({ ...formData, estado: e.target.value })}
+                    value={formData.publicada ? "publicada" : "borrador"}
+                    onChange={(e) => setFormData({ ...formData, publicada: e.target.value === "publicada" })}
                     className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-sm"
                   >
                     <option value="borrador">Borrador</option>
                     <option value="publicada">Publicada</option>
                   </select>
                 </div>
-                <Button type="submit" className="w-full bg-primary hover:bg-primary/90 gap-2">
-                  <Save className="w-4 h-4" />
-                  Guardar
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    id="destacada"
+                    checked={formData.destacada}
+                    onChange={(e) => setFormData({ ...formData, destacada: e.target.checked })}
+                    className="rounded border-zinc-300"
+                  />
+                  <Label htmlFor="destacada" className="text-sm cursor-pointer">Marcar como destacada</Label>
+                </div>
+                <Button 
+                  type="submit" 
+                  className="w-full bg-primary hover:bg-primary/90 gap-2"
+                  disabled={saving || saved}
+                >
+                  {saving ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
+                  {saving ? "Guardando..." : "Guardar"}
                 </Button>
               </div>
-            </motion.div>
-
-            {/* Categoría */}
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
-              className="bg-white rounded-xl border border-zinc-200 p-6"
-            >
-              <h3 className="font-heading font-bold mb-4">Categoría</h3>
-              <select
-                value={formData.categoria}
-                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-                className="w-full px-3 py-2 rounded-lg border border-zinc-200 text-sm"
-              >
-                <option value="Club">Club</option>
-                <option value="Primer Equipo">Primer Equipo</option>
-                <option value="Cantera">Cantera</option>
-                <option value="Eventos">Eventos</option>
-              </select>
             </motion.div>
 
             {/* Imagen destacada */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3 }}
               className="bg-white rounded-xl border border-zinc-200 p-6"
             >
               <h3 className="font-heading font-bold mb-4">Imagen Destacada</h3>
-              <div className="border-2 border-dashed border-zinc-200 rounded-xl p-8 text-center hover:border-primary/50 transition-colors cursor-pointer">
-                <ImageIcon className="w-10 h-10 text-zinc-300 mx-auto" />
-                <p className="text-sm text-zinc-500 mt-2">Arrastra una imagen o haz clic</p>
-                <Button variant="outline" size="sm" className="mt-4 gap-2">
-                  <Upload className="w-4 h-4" />
-                  Subir imagen
-                </Button>
-              </div>
+              <ImageUploadField
+                label=""
+                value={formData.imagen_principal}
+                onChange={(url) => setFormData({ ...formData, imagen_principal: url })}
+                carpeta="noticias"
+              />
             </motion.div>
           </div>
         </div>

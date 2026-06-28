@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -10,17 +11,24 @@ import {
   ArrowLeft,
   User,
   Mail,
-  Phone,
-  MapPin,
-  Calendar,
   Shield,
   CreditCard,
   Save,
-  CheckCircle
+  CheckCircle,
+  AlertCircle,
+  Loader2,
+  Copy,
+  Check
 } from "lucide-react"
 
 export default function NuevoSocioPage() {
+  const router = useRouter()
+  const [saving, setSaving] = useState(false)
   const [saved, setSaved] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [generatedPassword, setGeneratedPassword] = useState<string | null>(null)
+  const [authWarning, setAuthWarning] = useState<string | null>(null)
+  const [copied, setCopied] = useState(false)
   const [formData, setFormData] = useState({
     nombre: "",
     apellidos: "",
@@ -28,17 +36,43 @@ export default function NuevoSocioPage() {
     telefono: "",
     dni: "",
     direccion: "",
-    codigoPostal: "",
+    codigo_postal: "",
     localidad: "",
-    fechaNacimiento: "",
-    tipoSocio: "Adulto",
-    metodoPago: "domiciliacion"
+    fecha_nacimiento: "",
+    tipo: "Adulto" as "Infantil" | "Juvenil" | "Adulto" | "Veterano",
+    forma_pago: "domiciliacion" as "domiciliacion" | "transferencia" | "efectivo"
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-    setSaved(true)
-    setTimeout(() => setSaved(false), 3000)
+    setSaving(true)
+    setError(null)
+
+    try {
+      const res = await fetch("/api/admin/socios", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      })
+      const data = await res.json()
+
+      if (!res.ok) throw new Error(data.error || "Error al registrar el socio")
+
+      setGeneratedPassword(data.generatedPassword || null)
+      setAuthWarning(data.authWarning || null)
+      setSaved(true)
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al registrar el socio")
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const handleCopyPassword = () => {
+    if (!generatedPassword) return
+    navigator.clipboard.writeText(generatedPassword)
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
   }
 
   return (
@@ -65,10 +99,51 @@ export default function NuevoSocioPage() {
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-green-50 border border-green-200 rounded-xl p-4 flex items-center gap-3"
+          className="bg-green-50 border border-green-200 rounded-xl p-5 space-y-4"
         >
-          <CheckCircle className="w-5 h-5 text-green-600" />
-          <span className="text-green-800 font-medium">Socio registrado correctamente</span>
+          <div className="flex items-center gap-3">
+            <CheckCircle className="w-5 h-5 text-green-600 shrink-0" />
+            <span className="text-green-800 font-medium">Socio registrado correctamente.</span>
+          </div>
+
+          {generatedPassword && (
+            <div className="space-y-2">
+              <p className="text-sm text-green-800">
+                Contraseña de acceso generada para <strong>{formData.email}</strong>. Cópiala y envíasela al socio: no volverá a mostrarse.
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="flex-1 bg-white border border-green-300 rounded-lg px-3 py-2 text-sm font-mono text-zinc-900">
+                  {generatedPassword}
+                </code>
+                <Button type="button" variant="outline" size="icon" onClick={handleCopyPassword}>
+                  {copied ? <Check className="w-4 h-4 text-green-600" /> : <Copy className="w-4 h-4" />}
+                </Button>
+              </div>
+            </div>
+          )}
+
+          {authWarning && (
+            <div className="flex items-center gap-2 text-amber-800 text-sm">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{authWarning}</span>
+            </div>
+          )}
+
+          <Button type="button" onClick={() => router.push("/admin/socios")} className="bg-primary hover:bg-primary/90">
+            Volver a socios
+          </Button>
+        </motion.div>
+      )}
+
+      {/* Error message */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-center gap-3"
+        >
+          <AlertCircle className="w-5 h-5 text-red-600" />
+          <span className="text-red-800 font-medium">{error}</span>
         </motion.div>
       )}
 
@@ -107,22 +182,20 @@ export default function NuevoSocioPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="dni">DNI/NIE *</Label>
+              <Label htmlFor="dni">DNI/NIE</Label>
               <Input
                 id="dni"
                 value={formData.dni}
                 onChange={(e) => setFormData({ ...formData, dni: e.target.value })}
-                required
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="fechaNacimiento">Fecha de nacimiento *</Label>
+              <Label htmlFor="fecha_nacimiento">Fecha de nacimiento</Label>
               <Input
-                id="fechaNacimiento"
+                id="fecha_nacimiento"
                 type="date"
-                value={formData.fechaNacimiento}
-                onChange={(e) => setFormData({ ...formData, fechaNacimiento: e.target.value })}
-                required
+                value={formData.fecha_nacimiento}
+                onChange={(e) => setFormData({ ...formData, fecha_nacimiento: e.target.value })}
               />
             </div>
           </div>
@@ -152,14 +225,14 @@ export default function NuevoSocioPage() {
                 onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                 required
               />
+              <p className="text-xs text-zinc-500">Con este email accederá el socio al portal.</p>
             </div>
             <div className="space-y-2">
-              <Label htmlFor="telefono">Teléfono *</Label>
+              <Label htmlFor="telefono">Teléfono</Label>
               <Input
                 id="telefono"
                 value={formData.telefono}
                 onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                required
               />
             </div>
             <div className="space-y-2 sm:col-span-2">
@@ -171,11 +244,11 @@ export default function NuevoSocioPage() {
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="codigoPostal">Código Postal</Label>
+              <Label htmlFor="codigo_postal">Código Postal</Label>
               <Input
-                id="codigoPostal"
-                value={formData.codigoPostal}
-                onChange={(e) => setFormData({ ...formData, codigoPostal: e.target.value })}
+                id="codigo_postal"
+                value={formData.codigo_postal}
+                onChange={(e) => setFormData({ ...formData, codigo_postal: e.target.value })}
               />
             </div>
             <div className="space-y-2">
@@ -204,24 +277,25 @@ export default function NuevoSocioPage() {
           </div>
 
           <div className="grid sm:grid-cols-4 gap-3">
-            {["Infantil", "Juvenil", "Adulto", "Veterano"].map((tipo) => (
+            {[
+              { id: "Infantil", label: "Infantil", desc: "Hasta 12 años", cuota: "50€/año" },
+              { id: "Juvenil", label: "Juvenil", desc: "13-17 años", cuota: "75€/año" },
+              { id: "Adulto", label: "Adulto", desc: "18-64 años", cuota: "100€/año" },
+              { id: "Veterano", label: "Veterano", desc: "65+ años", cuota: "80€/año" }
+            ].map((tipo) => (
               <button
-                key={tipo}
+                key={tipo.id}
                 type="button"
-                onClick={() => setFormData({ ...formData, tipoSocio: tipo })}
-                className={`p-4 rounded-xl border-2 transition-all ${
-                  formData.tipoSocio === tipo
+                onClick={() => setFormData({ ...formData, tipo: tipo.id as typeof formData.tipo })}
+                className={`p-4 rounded-xl border-2 transition-all text-left ${
+                  formData.tipo === tipo.id
                     ? "border-primary bg-primary/5"
                     : "border-zinc-200 hover:border-zinc-300"
                 }`}
               >
-                <p className="font-medium">{tipo}</p>
-                <p className="text-sm text-zinc-500 mt-1">
-                  {tipo === "Infantil" && "Hasta 12 años"}
-                  {tipo === "Juvenil" && "13-17 años"}
-                  {tipo === "Adulto" && "18-64 años"}
-                  {tipo === "Veterano" && "65+ años"}
-                </p>
+                <p className="font-medium">{tipo.label}</p>
+                <p className="text-sm text-zinc-500 mt-1">{tipo.desc}</p>
+                <p className="text-xs text-primary font-semibold mt-2">{tipo.cuota}</p>
               </button>
             ))}
           </div>
@@ -244,15 +318,15 @@ export default function NuevoSocioPage() {
           <div className="grid sm:grid-cols-3 gap-3">
             {[
               { id: "domiciliacion", label: "Domiciliación bancaria", desc: "Pago mensual automático" },
-              { id: "tarjeta", label: "Tarjeta de crédito", desc: "Pago único anual" },
+              { id: "transferencia", label: "Transferencia", desc: "Pago único anual" },
               { id: "efectivo", label: "Efectivo", desc: "Pago en oficina del club" }
             ].map((metodo) => (
               <button
                 key={metodo.id}
                 type="button"
-                onClick={() => setFormData({ ...formData, metodoPago: metodo.id })}
+                onClick={() => setFormData({ ...formData, forma_pago: metodo.id as typeof formData.forma_pago })}
                 className={`p-4 rounded-xl border-2 text-left transition-all ${
-                  formData.metodoPago === metodo.id
+                  formData.forma_pago === metodo.id
                     ? "border-primary bg-primary/5"
                     : "border-zinc-200 hover:border-zinc-300"
                 }`}
@@ -272,11 +346,19 @@ export default function NuevoSocioPage() {
           className="flex justify-end gap-3"
         >
           <Link href="/admin/socios">
-            <Button variant="outline">Cancelar</Button>
+            <Button variant="outline" disabled={saving}>Cancelar</Button>
           </Link>
-          <Button type="submit" className="bg-primary hover:bg-primary/90 gap-2">
-            <Save className="w-4 h-4" />
-            Registrar Socio
+          <Button 
+            type="submit" 
+            className="bg-primary hover:bg-primary/90 gap-2"
+            disabled={saving || saved}
+          >
+            {saving ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Save className="w-4 h-4" />
+            )}
+            {saving ? "Guardando..." : "Registrar Socio"}
           </Button>
         </motion.div>
       </form>

@@ -1,6 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import { Space_Grotesk, Inter } from 'next/font/google'
 import { Analytics } from '@vercel/analytics/next'
+import { CookieConsentProvider } from '@/lib/cookie-consent'
+import { CookieBanner } from '@/components/cookie-banner'
 import './globals.css'
 
 const spaceGrotesk = Space_Grotesk({ 
@@ -50,9 +52,14 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="es" className="bg-background">
+    <html lang="es" className="bg-background scroll-smooth">
       <body className={`${spaceGrotesk.variable} ${inter.variable} font-sans antialiased overflow-x-hidden`}>
-        {children}
+        <CookieConsentProvider>
+          <div className="contents">
+            {children}
+          </div>
+          <CookieBanner />
+        </CookieConsentProvider>
         {process.env.NODE_ENV === 'production' && <Analytics />}
       </body>
     </html>

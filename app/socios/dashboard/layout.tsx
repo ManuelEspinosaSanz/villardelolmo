@@ -2,20 +2,20 @@
 
 import { useState } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { ClubLogo } from "@/components/club-logo"
 import { Button } from "@/components/ui/button"
+import { useSocio } from "@/lib/hooks/use-socio"
+import { signOut } from "@/lib/supabase/auth-client"
 import {
   Home,
   User,
   CreditCard,
-  Gift,
   Settings,
   LogOut,
   Menu,
   X,
-  Bell,
   ChevronDown
 } from "lucide-react"
 
@@ -23,7 +23,6 @@ const navigation = [
   { name: "Inicio", href: "/socios/dashboard", icon: Home },
   { name: "Mi Perfil", href: "/socios/dashboard/perfil", icon: User },
   { name: "Carnet Digital", href: "/socios/dashboard/carnet", icon: CreditCard },
-  { name: "Beneficios", href: "/socios/dashboard/beneficios", icon: Gift },
   { name: "Ajustes", href: "/socios/dashboard/ajustes", icon: Settings },
 ]
 
@@ -33,8 +32,21 @@ export default function SociosDashboardLayout({
   children: React.ReactNode
 }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const { socio } = useSocio()
+
+  const iniciales = socio
+    ? `${socio.nombre?.[0] || ""}${socio.apellidos?.[0] || ""}`.toUpperCase()
+    : "--"
+  const nombreCompleto = socio ? `${socio.nombre} ${socio.apellidos}` : "Cargando..."
+
+  const handleLogout = async () => {
+    await signOut()
+    router.push("/socios/login")
+    router.refresh()
+  }
 
   return (
     <div className="min-h-screen bg-muted/30">
@@ -101,22 +113,21 @@ export default function SociosDashboardLayout({
           <div className="p-4 border-t border-white/10">
             <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/5">
               <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center text-white font-bold">
-                JG
+                {iniciales}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-white font-medium text-sm truncate">Juan García</div>
-                <div className="text-white/50 text-xs">Socio #1234</div>
+                <div className="text-white font-medium text-sm truncate">{nombreCompleto}</div>
+                <div className="text-white/50 text-xs">Socio #{socio?.numero_socio || "----"}</div>
               </div>
             </div>
-            <Link href="/">
-              <Button
-                variant="ghost"
-                className="w-full mt-3 text-white/70 hover:text-white hover:bg-white/10 justify-start gap-3"
-              >
-                <LogOut className="h-5 w-5" />
-                Cerrar sesión
-              </Button>
-            </Link>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className="w-full mt-3 text-white/70 hover:text-white hover:bg-white/10 justify-start gap-3"
+            >
+              <LogOut className="h-5 w-5" />
+              Cerrar sesión
+            </Button>
           </div>
         </div>
       </aside>
@@ -140,12 +151,6 @@ export default function SociosDashboardLayout({
             </div>
 
             <div className="flex items-center gap-2">
-              {/* Notifications */}
-              <button className="relative p-2 text-foreground/70 hover:text-foreground rounded-lg hover:bg-muted transition-colors">
-                <Bell className="h-5 w-5" />
-                <span className="absolute top-1.5 right-1.5 h-2 w-2 bg-red-500 rounded-full" />
-              </button>
-
               {/* User menu */}
               <div className="relative">
                 <button
@@ -153,7 +158,7 @@ export default function SociosDashboardLayout({
                   className="flex items-center gap-2 p-2 rounded-lg hover:bg-muted transition-colors"
                 >
                   <div className="h-8 w-8 rounded-full bg-primary flex items-center justify-center text-white text-sm font-bold">
-                    JG
+                    {iniciales}
                   </div>
                   <ChevronDown className="h-4 w-4 text-foreground/50" />
                 </button>
@@ -168,8 +173,8 @@ export default function SociosDashboardLayout({
                       className="absolute right-0 mt-2 w-56 bg-card border rounded-lg shadow-xl py-1 z-50"
                     >
                       <div className="px-4 py-3 border-b">
-                        <div className="font-medium">Juan García López</div>
-                        <div className="text-sm text-muted-foreground">juan@email.com</div>
+                        <div className="font-medium">{nombreCompleto}</div>
+                        <div className="text-sm text-muted-foreground">{socio?.email || ""}</div>
                       </div>
                       <Link
                         href="/socios/dashboard/perfil"
@@ -188,14 +193,13 @@ export default function SociosDashboardLayout({
                         Ajustes
                       </Link>
                       <div className="border-t my-1" />
-                      <Link
-                        href="/"
-                        className="flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
-                        onClick={() => setUserMenuOpen(false)}
+                      <button
+                        onClick={handleLogout}
+                        className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                       >
                         <LogOut className="h-4 w-4" />
                         Cerrar sesión
-                      </Link>
+                      </button>
                     </motion.div>
                   )}
                 </AnimatePresence>

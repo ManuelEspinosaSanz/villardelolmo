@@ -1,11 +1,13 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
 import { ClubLogo } from "@/components/club-logo"
 import { Button } from "@/components/ui/button"
+import { createBrowserClient } from "@/lib/supabase/client"
+import { signOut } from "@/lib/supabase/auth-client"
 import {
   LayoutDashboard,
   Users,
@@ -16,15 +18,16 @@ import {
   Menu,
   X,
   LogOut,
-  Bell,
   ChevronDown,
-  User
+  User,
+  Image as ImageIcon
 } from "lucide-react"
 
 const navigation = [
   { name: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { name: "Socios", href: "/admin/socios", icon: Users },
   { name: "Noticias", href: "/admin/noticias", icon: Newspaper },
+  { name: "Galería", href: "/admin/galeria", icon: ImageIcon },
   { name: "Equipos", href: "/admin/equipos", icon: Shield },
   { name: "Estadísticas", href: "/admin/estadisticas", icon: BarChart3 },
   { name: "Configuración", href: "/admin/configuracion", icon: Settings },
@@ -37,7 +40,32 @@ export default function AdminLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [userMenuOpen, setUserMenuOpen] = useState(false)
+  const [userInfo, setUserInfo] = useState<{ nombre: string; email: string } | null>(null)
   const pathname = usePathname()
+  const router = useRouter()
+
+  useEffect(() => {
+    if (pathname === "/admin/login") return
+    const supabase = createBrowserClient()
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      if (!user) return
+      setUserInfo({
+        nombre: user.email?.split("@")[0] || "Admin",
+        email: user.email || "",
+      })
+    })
+  }, [pathname])
+
+  const handleLogout = async () => {
+    await signOut()
+    router.push("/admin/login")
+    router.refresh()
+  }
+
+  // El login de admin tiene su propio layout sin sidebar
+  if (pathname === "/admin/login") {
+    return <>{children}</>
+  }
 
   return (
     <div className="min-h-screen bg-zinc-50">
@@ -108,8 +136,8 @@ export default function AdminLayout({
                 <User className="w-5 h-5 text-primary" />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-white truncate">Admin</p>
-                <p className="text-xs text-zinc-500 truncate">admin@udvillar.com</p>
+                <p className="text-sm font-medium text-white truncate">{userInfo?.nombre || "Admin"}</p>
+                <p className="text-xs text-zinc-500 truncate">{userInfo?.email || ""}</p>
               </div>
             </div>
             <Link href="/">
@@ -121,6 +149,14 @@ export default function AdminLayout({
                 Volver al sitio
               </Button>
             </Link>
+            <Button
+              variant="ghost"
+              onClick={handleLogout}
+              className="w-full mt-1 text-red-400 hover:text-red-300 hover:bg-zinc-800 justify-start gap-3"
+            >
+              <LogOut className="w-4 h-4" />
+              Cerrar sesión
+            </Button>
           </div>
         </div>
       </aside>
@@ -143,12 +179,6 @@ export default function AdminLayout({
             </div>
 
             <div className="flex items-center gap-3">
-              {/* Notifications */}
-              <button className="relative p-2 text-zinc-600 hover:text-zinc-900 hover:bg-zinc-100 rounded-lg transition-colors">
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full" />
-              </button>
-
               {/* User menu */}
               <div className="relative">
                 <button
@@ -184,7 +214,7 @@ export default function AdminLayout({
                         Volver al sitio
                       </Link>
                       <hr className="my-2 border-zinc-200" />
-                      <button className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                      <button onClick={handleLogout} className="w-full text-left px-4 py-2 text-sm text-red-600 hover:bg-red-50">
                         Cerrar sesión
                       </button>
                     </motion.div>

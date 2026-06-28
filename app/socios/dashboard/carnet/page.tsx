@@ -1,34 +1,70 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { ClubLogo } from "@/components/club-logo"
-import { 
-  Download, 
-  Share2, 
+import { useSocio } from "@/lib/hooks/use-socio"
+import {
+  Download,
+  Share2,
   QrCode,
   Shield,
   Calendar,
   User,
-  Smartphone,
-  CheckCircle
+  CheckCircle,
+  AlertCircle,
+  Loader2
 } from "lucide-react"
 
-const mockUser = {
-  nombre: "Carlos",
-  apellidos: "García López",
-  numeroSocio: "00247",
-  tipoSocio: "Adulto",
-  fechaAlta: "2018-09-01",
-  validoHasta: "2026-06-30",
-  dni: "12345678A",
-  foto: null
+const tipoSocioLabel: Record<string, string> = {
+  Adulto: "Adulto",
+  Juvenil: "Juvenil",
+  Infantil: "Infantil",
+  Veterano: "Veterano",
+  Honorario: "Honorario",
 }
 
 export default function CarnetSocioPage() {
   const [isFlipped, setIsFlipped] = useState(false)
   const [showQR, setShowQR] = useState(false)
+  const { socio, loading, error } = useSocio()
+  const patronCarnet = useMemo(() => Array.from({ length: 64 }, () => Math.random() > 0.5), [])
+  const patronModal = useMemo(() => Array.from({ length: 144 }, () => Math.random() > 0.5), [])
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    )
+  }
+
+  if (error || !socio) {
+    return (
+      <div className="bg-red-50 border border-red-200 rounded-2xl p-8 text-center">
+        <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+        <p className="text-red-700 font-medium">{error || "No se ha encontrado tu ficha de socio."}</p>
+      </div>
+    )
+  }
+
+  const datosCarnet = {
+    nombre: socio.nombre,
+    apellidos: socio.apellidos,
+    numeroSocio: socio.numero_socio || "----",
+    tipoSocio: tipoSocioLabel[socio.tipo] || socio.tipo,
+    fechaAlta: socio.fecha_alta,
+    dni: socio.dni || "No registrado",
+  }
+
+  const estadoCarnet: Record<string, { label: string; clase: string }> = {
+    activo: { label: "Carnet Activo", clase: "bg-primary/10 text-primary" },
+    pendiente: { label: "Pendiente de activación", clase: "bg-amber-50 text-amber-700" },
+    inactivo: { label: "Carnet inactivo", clase: "bg-zinc-100 text-zinc-600" },
+    baja: { label: "Socio de baja", clase: "bg-red-50 text-red-700" },
+  }
+  const estadoActual = estadoCarnet[socio.estado] || estadoCarnet.inactivo
 
   return (
     <div className="space-y-8">
@@ -85,16 +121,16 @@ export default function CarnetSocioPage() {
                     <div>
                       <p className="text-white/70 text-xs uppercase tracking-wider mb-1">Nombre</p>
                       <p className="text-white font-heading font-bold text-xl">
-                        {mockUser.nombre} {mockUser.apellidos}
+                        {datosCarnet.nombre} {datosCarnet.apellidos}
                       </p>
                       <div className="flex items-center gap-4 mt-3">
                         <div>
                           <p className="text-white/70 text-xs uppercase tracking-wider">N° Socio</p>
-                          <p className="text-white font-bold">{mockUser.numeroSocio}</p>
+                          <p className="text-white font-bold">{datosCarnet.numeroSocio}</p>
                         </div>
                         <div>
                           <p className="text-white/70 text-xs uppercase tracking-wider">Tipo</p>
-                          <p className="text-white font-bold">{mockUser.tipoSocio}</p>
+                          <p className="text-white font-bold">{datosCarnet.tipoSocio}</p>
                         </div>
                       </div>
                     </div>
@@ -117,23 +153,22 @@ export default function CarnetSocioPage() {
                   <div className="flex-1 flex items-center justify-center">
                     <div className="text-center">
                       <div className="w-32 h-32 bg-white rounded-xl p-2 mx-auto">
-                        {/* QR Code simulado */}
                         <div className="w-full h-full bg-zinc-100 rounded grid grid-cols-8 gap-0.5 p-1">
-                          {Array.from({ length: 64 }).map((_, i) => (
-                            <div 
-                              key={i} 
-                              className={`aspect-square ${Math.random() > 0.5 ? 'bg-zinc-900' : 'bg-white'}`}
+                          {patronCarnet.map((negro, i) => (
+                            <div
+                              key={i}
+                              className={`aspect-square ${negro ? 'bg-zinc-900' : 'bg-white'}`}
                             />
                           ))}
                         </div>
                       </div>
-                      <p className="text-white/60 text-xs mt-3">Escanea para verificar</p>
+                      <p className="text-white/60 text-xs mt-3">Identificador visual de socio</p>
                     </div>
                   </div>
 
                   <div className="flex items-center justify-between text-white/60 text-xs">
-                    <span>Válido hasta: {new Date(mockUser.validoHasta).toLocaleDateString("es-ES")}</span>
-                    <span>DNI: {mockUser.dni}</span>
+                    <span>{estadoActual.label}</span>
+                    <span>DNI: {datosCarnet.dni}</span>
                   </div>
                 </div>
               </div>
@@ -146,11 +181,11 @@ export default function CarnetSocioPage() {
 
           {/* Acciones */}
           <div className="flex flex-wrap justify-center gap-3 mt-6">
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => alert("Próximamente: descarga del carnet en PDF")}>
               <Download className="w-4 h-4" />
               Descargar
             </Button>
-            <Button variant="outline" className="gap-2">
+            <Button variant="outline" className="gap-2" onClick={() => alert("Próximamente: compartir carnet")}>
               <Share2 className="w-4 h-4" />
               Compartir
             </Button>
@@ -172,17 +207,21 @@ export default function CarnetSocioPage() {
           <div className="bg-card rounded-2xl border border-border p-6">
             <h3 className="text-lg font-heading font-bold mb-4">Estado del Carnet</h3>
             
-            <div className="flex items-center gap-4 p-4 bg-primary/10 rounded-xl">
-              <div className="w-12 h-12 bg-primary/20 rounded-full flex items-center justify-center">
-                <CheckCircle className="w-6 h-6 text-primary" />
+            <div className={`flex items-center gap-4 p-4 rounded-xl ${estadoActual.clase}`}>
+              <div className="w-12 h-12 bg-white/60 rounded-full flex items-center justify-center">
+                {socio.estado === "activo" ? (
+                  <CheckCircle className="w-6 h-6" />
+                ) : (
+                  <AlertCircle className="w-6 h-6" />
+                )}
               </div>
               <div>
-                <p className="font-semibold text-primary">Carnet Activo</p>
-                <p className="text-sm text-muted-foreground">
-                  Válido hasta el {new Date(mockUser.validoHasta).toLocaleDateString("es-ES", {
-                    day: "numeric",
+                <p className="font-semibold">{estadoActual.label}</p>
+                <p className="text-sm opacity-80">
+                  Socio desde{" "}
+                  {new Date(datosCarnet.fechaAlta).toLocaleDateString("es-ES", {
                     month: "long",
-                    year: "numeric"
+                    year: "numeric",
                   })}
                 </p>
               </div>
@@ -199,7 +238,7 @@ export default function CarnetSocioPage() {
                   <User className="w-5 h-5 text-muted-foreground" />
                   <span className="text-muted-foreground">Titular</span>
                 </div>
-                <span className="font-medium">{mockUser.nombre} {mockUser.apellidos}</span>
+                <span className="font-medium">{datosCarnet.nombre} {datosCarnet.apellidos}</span>
               </div>
               
               <div className="flex items-center justify-between py-3 border-b border-border">
@@ -207,7 +246,7 @@ export default function CarnetSocioPage() {
                   <Shield className="w-5 h-5 text-muted-foreground" />
                   <span className="text-muted-foreground">Número de socio</span>
                 </div>
-                <span className="font-medium font-mono">{mockUser.numeroSocio}</span>
+                <span className="font-medium font-mono">{datosCarnet.numeroSocio}</span>
               </div>
               
               <div className="flex items-center justify-between py-3 border-b border-border">
@@ -216,7 +255,7 @@ export default function CarnetSocioPage() {
                   <span className="text-muted-foreground">Socio desde</span>
                 </div>
                 <span className="font-medium">
-                  {new Date(mockUser.fechaAlta).toLocaleDateString("es-ES", {
+                  {new Date(datosCarnet.fechaAlta).toLocaleDateString("es-ES", {
                     month: "long",
                     year: "numeric"
                   })}
@@ -228,26 +267,8 @@ export default function CarnetSocioPage() {
                   <Shield className="w-5 h-5 text-muted-foreground" />
                   <span className="text-muted-foreground">Categoría</span>
                 </div>
-                <span className="font-medium">Socio {mockUser.tipoSocio}</span>
+                <span className="font-medium">Socio {datosCarnet.tipoSocio}</span>
               </div>
-            </div>
-          </div>
-
-          {/* Añadir a wallet */}
-          <div className="bg-card rounded-2xl border border-border p-6">
-            <h3 className="text-lg font-heading font-bold mb-4">Añadir a tu móvil</h3>
-            <p className="text-muted-foreground text-sm mb-4">
-              Añade tu carnet a Apple Wallet o Google Pay para tenerlo siempre a mano.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button variant="outline" className="gap-2">
-                <Smartphone className="w-4 h-4" />
-                Apple Wallet
-              </Button>
-              <Button variant="outline" className="gap-2">
-                <Smartphone className="w-4 h-4" />
-                Google Pay
-              </Button>
             </div>
           </div>
         </motion.div>
@@ -269,16 +290,16 @@ export default function CarnetSocioPage() {
           >
             <div className="w-48 h-48 bg-zinc-100 rounded-xl p-3 mx-auto">
               <div className="w-full h-full grid grid-cols-12 gap-0.5">
-                {Array.from({ length: 144 }).map((_, i) => (
-                  <div 
-                    key={i} 
-                    className={`aspect-square ${Math.random() > 0.5 ? 'bg-zinc-900' : 'bg-white'}`}
+                {patronModal.map((negro, i) => (
+                  <div
+                    key={i}
+                    className={`aspect-square ${negro ? 'bg-zinc-900' : 'bg-white'}`}
                   />
                 ))}
               </div>
             </div>
-            <p className="text-lg font-heading font-bold mt-4">Socio #{mockUser.numeroSocio}</p>
-            <p className="text-muted-foreground text-sm">{mockUser.nombre} {mockUser.apellidos}</p>
+            <p className="text-lg font-heading font-bold mt-4">Socio #{datosCarnet.numeroSocio}</p>
+            <p className="text-muted-foreground text-sm">{datosCarnet.nombre} {datosCarnet.apellidos}</p>
             <Button 
               className="mt-6 w-full bg-primary hover:bg-primary/90"
               onClick={() => setShowQR(false)}

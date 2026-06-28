@@ -10,18 +10,46 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowLeft, ArrowRight, Mail, MapPin, Phone, Send, CheckCircle } from "lucide-react"
+import { ArrowLeft, ArrowRight, Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react"
+import { useCookieConsent } from "@/lib/cookie-consent"
 
 export default function ContactoPage() {
+  const { consent, accept } = useCookieConsent()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [submitted, setSubmitted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    asunto: "",
+    mensaje: ""
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsSubmitting(true)
-    await new Promise(resolve => setTimeout(resolve, 1000))
-    setIsSubmitting(false)
-    setSubmitted(true)
+    setError(null)
+
+    try {
+      const response = await fetch("/api/contacto", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Error al enviar el mensaje")
+      }
+
+      setSubmitted(true)
+      setFormData({ nombre: "", email: "", asunto: "", mensaje: "" })
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Error al enviar el mensaje")
+    } finally {
+      setIsSubmitting(false)
+    }
   }
 
   return (
@@ -84,7 +112,6 @@ export default function ContactoPage() {
                     {[
                       { icon: MapPin, label: "Dirección", value: "Campo Municipal de Fútbol\n28511 Villar del Olmo, Madrid" },
                       { icon: Mail, label: "Email", value: "info@udvillardelolmo.es", href: "mailto:info@udvillardelolmo.es" },
-                      { icon: Phone, label: "Teléfono", value: "+34 600 000 000", href: "tel:+34600000000" },
                     ].map((item, index) => (
                       <motion.div 
                         key={index}
@@ -117,17 +144,30 @@ export default function ContactoPage() {
 
                   {/* Map */}
                   <div className="aspect-[4/3] bg-muted overflow-hidden">
-                    <iframe
-                      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6078.8!2d-3.23!3d40.36!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422e7c8c!2sVillar%20del%20Olmo!5e0!3m2!1ses!2ses!4v1"
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0 }}
-                      allowFullScreen
-                      loading="lazy"
-                      referrerPolicy="no-referrer-when-downgrade"
-                      title="Ubicación del club"
-                      className="grayscale hover:grayscale-0 transition-all duration-500"
-                    />
+                    {consent === "accepted" ? (
+                      <iframe
+                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d6078.8!2d-3.23!3d40.36!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0xd422e7c8c!2sVillar%20del%20Olmo!5e0!3m2!1ses!2ses!4v1"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        title="Ubicación del club"
+                        className="grayscale hover:grayscale-0 transition-all duration-500"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center gap-4 p-8 text-center">
+                        <MapPin className="h-8 w-8 text-muted-foreground/50" />
+                        <p className="text-sm text-muted-foreground max-w-xs">
+                          El mapa lo proporciona Google y solo se carga si aceptas las cookies de
+                          terceros.
+                        </p>
+                        <Button type="button" variant="outline" size="sm" onClick={accept}>
+                          Aceptar y ver el mapa
+                        </Button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </FadeIn>
@@ -170,6 +210,8 @@ export default function ContactoPage() {
                             id="nombre" 
                             placeholder="Tu nombre"
                             required
+                            value={formData.nombre}
+                            onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
                             className="h-14 bg-background/5 border-background/10 text-background placeholder:text-background/30 focus:border-primary"
                           />
                         </div>
@@ -182,10 +224,18 @@ export default function ContactoPage() {
                             type="email"
                             placeholder="tu@email.com"
                             required
+                            value={formData.email}
+                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                             className="h-14 bg-background/5 border-background/10 text-background placeholder:text-background/30 focus:border-primary"
                           />
                         </div>
                       </div>
+                      {error && (
+                        <div className="flex items-center gap-2 p-4 bg-red-500/20 text-red-200 text-sm">
+                          <AlertCircle className="h-4 w-4 shrink-0" />
+                          {error}
+                        </div>
+                      )}
                       <div className="space-y-2">
                         <Label htmlFor="asunto" className="text-background/60 text-xs uppercase tracking-[0.15em]">
                           Asunto
@@ -194,6 +244,8 @@ export default function ContactoPage() {
                           id="asunto" 
                           placeholder="Motivo de tu consulta"
                           required
+                          value={formData.asunto}
+                          onChange={(e) => setFormData({ ...formData, asunto: e.target.value })}
                           className="h-14 bg-background/5 border-background/10 text-background placeholder:text-background/30 focus:border-primary"
                         />
                       </div>
@@ -206,6 +258,8 @@ export default function ContactoPage() {
                           placeholder="Escribe tu mensaje aquí..."
                           rows={6}
                           required
+                          value={formData.mensaje}
+                          onChange={(e) => setFormData({ ...formData, mensaje: e.target.value })}
                           className="bg-background/5 border-background/10 text-background placeholder:text-background/30 focus:border-primary resize-none"
                         />
                       </div>

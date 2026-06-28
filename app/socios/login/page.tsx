@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter, useSearchParams } from "next/navigation"
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { Button } from "@/components/ui/button"
@@ -8,26 +9,41 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { ClubLogo } from "@/components/club-logo"
 import Link from "next/link"
-import { ArrowLeft, Eye, EyeOff, ArrowRight, Shield } from "lucide-react"
+import { ArrowLeft, Eye, EyeOff, ArrowRight, Shield, AlertCircle } from "lucide-react"
 import { FadeIn, StaggerContainer, ScaleIn } from "@/components/motion"
+import { signIn } from "@/lib/supabase/auth-client"
 
 export default function LoginSociosPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
   const [showPassword, setShowPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [error, setError] = useState<string | null>(null)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    setError(null)
     setIsLoading(true)
-    await new Promise(resolve => setTimeout(resolve, 1500))
-    setIsLoading(false)
-    alert("Funcionalidad próximamente disponible")
+    try {
+      await signIn(email, password)
+      const redirectTo = searchParams.get("redirectTo") || "/socios/dashboard"
+      router.push(redirectTo)
+      router.refresh()
+    } catch (err: any) {
+      setError(
+        err?.message === "Invalid login credentials"
+          ? "Email o contraseña incorrectos."
+          : "Ha ocurrido un error al iniciar sesión. Inténtalo de nuevo."
+      )
+      setIsLoading(false)
+    }
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      <Header />
+      <Header lightHero />
       <main className="flex-1 pt-20">
         <div className="min-h-[calc(100vh-80px)] flex">
           {/* Left - Form */}
@@ -40,7 +56,7 @@ export default function LoginSociosPage() {
                     className="inline-flex items-center text-muted-foreground hover:text-foreground mb-12 text-sm font-medium transition-colors group"
                   >
                     <ArrowLeft className="h-4 w-4 mr-2 group-hover:-translate-x-1 transition-transform" />
-                    Volver a planes
+                    Volver
                   </Link>
                 </FadeIn>
 
@@ -58,6 +74,12 @@ export default function LoginSociosPage() {
 
                 <FadeIn>
                   <form onSubmit={handleSubmit} className="space-y-6">
+                    {error && (
+                      <div className="flex items-center gap-2 rounded-xl bg-red-50 border border-red-200 text-red-700 px-4 py-3 text-sm">
+                        <AlertCircle className="h-4 w-4 shrink-0" />
+                        <span>{error}</span>
+                      </div>
+                    )}
                     <div className="space-y-2">
                       <Label htmlFor="email" className="text-sm font-semibold">
                         Email
@@ -80,6 +102,20 @@ export default function LoginSociosPage() {
                         </Label>
                         <button
                           type="button"
+                          onClick={async () => {
+                            if (!email) {
+                              setError("Introduce tu email para recuperar la contraseña.")
+                              return
+                            }
+                            try {
+                              const { resetPassword } = await import("@/lib/supabase/auth-client")
+                              await resetPassword(email)
+                              setError(null)
+                              alert("Te hemos enviado un email para restablecer tu contraseña.")
+                            } catch {
+                              setError("No se ha podido enviar el email de recuperación.")
+                            }
+                          }}
                           className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
                         >
                           ¿Olvidaste tu contraseña?
