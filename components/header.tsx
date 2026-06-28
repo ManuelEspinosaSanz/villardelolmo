@@ -275,7 +275,7 @@ export function Header({ lightHero = false }: { lightHero?: boolean }) {
                 className="flex flex-col gap-4 mt-8"
               >
                 <Link href="/socios/login" onClick={() => setMobileMenuOpen(false)}>
-                  <Button variant="outline" size="lg" className="w-full border-white text-white hover:bg-white hover:text-primary">
+                  <Button variant="outline" size="lg" className="w-full bg-transparent border-white text-white hover:bg-white hover:text-primary">
                     ACCESO SOCIOS
                   </Button>
                 </Link>

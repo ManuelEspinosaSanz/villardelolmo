@@ -20,13 +20,8 @@ const instalaciones = [
     imagen: "/images/instalacion-campo.jpg",
   },
   {
-    nombre: "Focos",
-    descripcion: "Iluminación LED de alta potencia que permite entrenamientos y partidos en horario nocturno con total visibilidad.",
-    imagen: "/images/instalacion-focos.jpg",
-  },
-  {
     nombre: "Gradas",
-    descripcion: "Gradas con capacidad para cientos de aficionados, cubierta para protegerse de la lluvia y sol en los partidos de local.",
+    descripcion: "Gradas con capacidad para los aficionados que nos acompañan en los partidos de local.",
     imagen: "/images/instalacion-gradas.jpg",
   },
 ]

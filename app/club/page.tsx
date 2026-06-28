@@ -76,7 +76,7 @@ export default function ClubPage() {
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="text-white/70 text-lg md:text-xl max-w-xl">
-                Más de 50 años formando futbolistas y personas en el corazón de Madrid.
+                Décadas formando futbolistas y personas en el corazón de Madrid.
               </p>
             </FadeIn>
           </div>

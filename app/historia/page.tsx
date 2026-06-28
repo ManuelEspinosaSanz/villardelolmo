@@ -66,7 +66,7 @@ export default function HistoriaPage() {
             </FadeIn>
             <FadeIn delay={0.2}>
               <p className="text-white/70 text-lg md:text-xl max-w-xl">
-                Mas de 50 anos de pasion, esfuerzo y futbol en el corazon de Madrid.
+                Décadas de pasión, esfuerzo y fútbol en el corazón de Madrid.
               </p>
             </FadeIn>
           </div>

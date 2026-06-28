@@ -10,7 +10,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { ArrowLeft, ArrowRight, Mail, MapPin, Send, CheckCircle, AlertCircle } from "lucide-react"
+import { ArrowLeft, ArrowRight, Mail, MapPin, Phone, Send, CheckCircle, AlertCircle } from "lucide-react"
 import { useCookieConsent } from "@/lib/cookie-consent"
 
 export default function ContactoPage() {
@@ -111,7 +111,8 @@ export default function ContactoPage() {
                   <div className="space-y-6 mb-12">
                     {[
                       { icon: MapPin, label: "Dirección", value: "Campo Municipal de Fútbol\n28511 Villar del Olmo, Madrid" },
-                      { icon: Mail, label: "Email", value: "info@udvillardelolmo.es", href: "mailto:info@udvillardelolmo.es" },
+                      { icon: Mail, label: "Email", value: "villardelolmo.ud@gmail.com", href: "mailto:villardelolmo.ud@gmail.com" },
+                      { icon: Phone, label: "Teléfono", value: "677 549 050", href: "tel:+34677549050" },
                     ].map((item, index) => (
                       <motion.div 
                         key={index}

@@ -74,8 +74,8 @@ export default function AvisoLegalPage() {
               <p>
                 Las presentes condiciones se rigen por la legislación española. Para cualquier
                 cuestión relacionada con este sitio web puedes escribirnos a{" "}
-                <a href="mailto:info@udvillardelolmo.es" className="text-primary hover:underline">
-                  info@udvillardelolmo.es
+                <a href="mailto:villardelolmo.ud@gmail.com" className="text-primary hover:underline">
+                  villardelolmo.ud@gmail.com
                 </a>.
               </p>
             </LegalSection>

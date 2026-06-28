@@ -93,8 +93,8 @@ export default function PrivacidadPage() {
               <p>
                 Puedes ejercer tus derechos de acceso, rectificación, supresión, oposición,
                 limitación y portabilidad de tus datos escribiendo a{" "}
-                <a href="mailto:info@udvillardelolmo.es" className="text-primary hover:underline">
-                  info@udvillardelolmo.es
+                <a href="mailto:villardelolmo.ud@gmail.com" className="text-primary hover:underline">
+                  villardelolmo.ud@gmail.com
                 </a>.
               </p>
             </LegalSection>

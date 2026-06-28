@@ -44,7 +44,7 @@ export function Footer() {
               </Link>
               <p className="text-background/60 leading-relaxed max-w-sm mb-8">
                 Formando futbolistas y personas en el corazón de Madrid desde 1970.
-                Más de 50 años de historia y pasión por el fútbol base.
+                Décadas de historia y pasión por el fútbol base.
               </p>
             </div>
 
@@ -95,11 +95,20 @@ export function Footer() {
                 <p>Campo Municipal de Fútbol</p>
                 <p>28511 Villar del Olmo, Madrid</p>
                 <p className="pt-2">
-                  <a 
-                    href="mailto:info@udvillardelolmo.es"
+                  <a
+                    href="mailto:villardelolmo.ud@gmail.com"
                     className="hover:text-background transition-colors inline-flex items-center gap-2 group"
                   >
-                    info@udvillardelolmo.es
+                    villardelolmo.ud@gmail.com
+                    <ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                </p>
+                <p>
+                  <a
+                    href="tel:+34677549050"
+                    className="hover:text-background transition-colors inline-flex items-center gap-2 group"
+                  >
+                    677 549 050
                     <ArrowUpRight className="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity" />
                   </a>
                 </p>

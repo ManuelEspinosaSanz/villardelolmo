@@ -1,78 +1,16 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { ArrowRight } from "lucide-react"
-import { motion, useInView } from "framer-motion"
-import { useRef, useEffect, useState } from "react"
 import { FadeIn } from "@/components/motion"
-import { createClient } from "@/lib/supabase/client"
-
-const statsBase = [
-  { key: "fundacion", value: 1970, label: "Año de fundación", suffix: "", animate: false },
-  { key: "equipos", value: 0, label: "Equipos activos", suffix: "", animate: true },
-  { key: "anos", value: 50, label: "Años de historia", suffix: "+", animate: true },
-  { key: "pasion", value: 1, label: "Misma pasión", suffix: "", animate: true },
-]
-
-function AnimatedNumber({ value, suffix }: { value: number; suffix: string }) {
-  const [count, setCount] = useState(0)
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: true, margin: "-100px" })
-
-  useEffect(() => {
-    if (!isInView) return
-    
-    const duration = 2000
-    const steps = 60
-    const stepValue = value / steps
-    let current = 0
-    
-    const timer = setInterval(() => {
-      current += stepValue
-      if (current >= value) {
-        setCount(value)
-        clearInterval(timer)
-      } else {
-        setCount(Math.floor(current))
-      }
-    }, duration / steps)
-
-    return () => clearInterval(timer)
-  }, [isInView, value])
-
-  return (
-    <span ref={ref}>
-      {count}{suffix}
-    </span>
-  )
-}
 
 export function AboutSection() {
-  const [numEquipos, setNumEquipos] = useState<number | null>(null)
-
-  useEffect(() => {
-    const fetchNumEquipos = async () => {
-      const supabase = createClient()
-      const { count } = await supabase
-        .from("equipos")
-        .select("*", { count: "exact", head: true })
-        .eq("activo", true)
-      setNumEquipos(count ?? 0)
-    }
-    fetchNumEquipos()
-  }, [])
-
-  const stats = statsBase.map((stat) =>
-    stat.key === "equipos" ? { ...stat, value: numEquipos ?? 0 } : stat
-  )
-
   return (
     <section className="py-24 md:py-40 bg-secondary/30 overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
-        <div className="grid lg:grid-cols-2 gap-16 lg:gap-24 items-center">
+        <div className="max-w-3xl mx-auto text-center">
           {/* Content */}
-          <FadeIn direction="right">
+          <FadeIn>
             <div>
               <span className="text-xs font-semibold text-primary uppercase tracking-[0.25em] mb-6 block">
                 Sobre nosotros
@@ -104,34 +42,7 @@ export function AboutSection() {
               </Link>
             </div>
           </FadeIn>
-
-          {/* Stats Grid */}
-          <FadeIn direction="left" delay={0.2}>
-            <div className="grid grid-cols-2 gap-1">
-              {stats.map((stat, index) => (
-                <motion.div 
-                  key={index}
-                  className="bg-background p-8 md:p-10 group hover:bg-primary transition-colors duration-500"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <div className="text-4xl md:text-5xl lg:text-6xl font-bold text-primary group-hover:text-white transition-colors mb-3 tracking-tight">
-                    {stat.animate ? (
-                      <AnimatedNumber value={stat.value} suffix={stat.suffix} />
-                    ) : (
-                      <span>{stat.value}{stat.suffix}</span>
-                    )}
-                  </div>
-                  <div className="text-xs md:text-sm text-muted-foreground group-hover:text-white/70 transition-colors tracking-wide font-medium">
-                    {stat.label}
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </FadeIn>
         </div>
-
-
       </div>
     </section>
   )

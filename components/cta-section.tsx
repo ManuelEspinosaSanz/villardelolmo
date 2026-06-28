@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
-import { ArrowRight, Mail } from "lucide-react"
+import { ArrowRight, Mail, Phone } from "lucide-react"
 import { FadeIn } from "@/components/motion"
 
 export function CTASection() {
@@ -62,7 +62,7 @@ export function CTASection() {
                     <Button
                       size="lg"
                       variant="outline"
-                      className="border-white/30 text-white hover:bg-white/10 text-sm font-semibold tracking-[0.1em] px-8 py-6 h-auto w-full sm:w-auto"
+                      className="border-white/30 bg-transparent text-white hover:bg-white/10 text-sm font-semibold tracking-[0.1em] px-8 py-6 h-auto w-full sm:w-auto"
                     >
                       CONTACTAR
                     </Button>
@@ -76,7 +76,7 @@ export function CTASection() {
           <FadeIn direction="left" delay={0.2}>
             <div className="space-y-4">
               <motion.a
-                href="mailto:info@udvillardelolmo.es"
+                href="mailto:villardelolmo.ud@gmail.com"
                 className="flex items-center gap-6 p-6 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors group"
                 whileHover={{ x: 10 }}
               >
@@ -86,7 +86,23 @@ export function CTASection() {
                 <div>
                   <div className="text-xs text-white/50 uppercase tracking-[0.15em] mb-1">Email</div>
                   <div className="text-white font-medium group-hover:text-white/80 transition-colors">
-                    info@udvillardelolmo.es
+                    villardelolmo.ud@gmail.com
+                  </div>
+                </div>
+                <ArrowRight className="h-5 w-5 text-white/50 ml-auto group-hover:text-white transition-colors" />
+              </motion.a>
+              <motion.a
+                href="tel:+34677549050"
+                className="flex items-center gap-6 p-6 bg-white/5 backdrop-blur-sm border border-white/10 hover:bg-white/10 transition-colors group"
+                whileHover={{ x: 10 }}
+              >
+                <div className="w-14 h-14 flex items-center justify-center bg-white/10">
+                  <Phone className="h-6 w-6 text-white" />
+                </div>
+                <div>
+                  <div className="text-xs text-white/50 uppercase tracking-[0.15em] mb-1">Teléfono</div>
+                  <div className="text-white font-medium group-hover:text-white/80 transition-colors">
+                    677 549 050
                   </div>
                 </div>
                 <ArrowRight className="h-5 w-5 text-white/50 ml-auto group-hover:text-white transition-colors" />
