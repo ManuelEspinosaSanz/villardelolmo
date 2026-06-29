@@ -328,7 +328,6 @@ CREATE POLICY "Equipos activos son públicos" ON public.equipos FOR SELECT USING
 CREATE POLICY "Categorías de equipo son públicas" ON public.categorias_equipo FOR SELECT USING (activo = true);
 CREATE POLICY "Categorías de noticia son públicas" ON public.categorias_noticia FOR SELECT USING (true);
 CREATE POLICY "Jugadores activos son públicos" ON public.jugadores FOR SELECT USING (activo = true);
-CREATE POLICY "Eventos publicados son públicos" ON public.eventos FOR SELECT USING (publicado = true);
 CREATE POLICY "Configuración web es pública" ON public.configuracion_web FOR SELECT USING (true);
 CREATE POLICY "Galería publicada es pública" ON public.galeria FOR SELECT USING (publicada = true);
 
@@ -341,6 +340,16 @@ CREATE POLICY "Un socio ve su propia ficha" ON public.socios FOR SELECT USING (
 );
 CREATE POLICY "Un socio edita su propia ficha" ON public.socios FOR UPDATE USING (
   email = (auth.jwt() ->> 'email')
+);
+
+-- Los eventos son contenido exclusivo de socios: nadie más puede verlos, ni
+-- siquiera con la URL directa, solo quien tiene sesión y figura en la tabla
+-- socios (los admins tienen acceso total vía la política de más abajo).
+CREATE POLICY "Solo los socios ven los eventos publicados" ON public.eventos FOR SELECT USING (
+  publicado = true
+  AND EXISTS (
+    SELECT 1 FROM public.socios s WHERE s.email = (auth.jwt() ->> 'email')
+  )
 );
 
 -- Políticas de admin: acceso total mediante is_admin() (email)

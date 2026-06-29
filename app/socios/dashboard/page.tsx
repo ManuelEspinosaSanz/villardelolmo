@@ -207,6 +207,9 @@ export default function SociosDashboardPage() {
         >
           <div className="flex items-center justify-between mb-4">
             <h2 className="text-lg font-semibold">Próximos eventos</h2>
+            <Link href="/socios/dashboard/eventos" className="text-sm text-primary hover:underline">
+              Ver todos
+            </Link>
           </div>
           <Card className="border-none shadow-sm">
             <CardContent className="p-0 divide-y">
