@@ -31,11 +31,24 @@ export default function PrivacidadPage() {
 
           <FadeIn>
             <LegalSection number="1" title="Responsable del tratamiento">
-              <Pendiente>
-                Nombre legal del club, CIF, domicilio social y datos de contacto del
-                representante legal o de la persona encargada de atender cuestiones de
-                privacidad.
-              </Pendiente>
+              <p>
+                Responsable: <strong>CDE Unión Deportiva Villar del Olmo</strong>, con CIF{" "}
+                <strong>G84394519</strong>, inscrito con el número <strong>3931</strong> en la
+                Sección de Clubes Deportivos Elementales del Registro de Entidades Deportivas de
+                la Comunidad de Madrid.
+              </p>
+              <p>
+                Domicilio social: Campo Municipal de Fútbol, 28511 Villar del Olmo, Madrid.
+              </p>
+              <p>
+                Representante legal: Félix Horcajo Magano.
+              </p>
+              <p>
+                Contacto:{" "}
+                <a href="mailto:villardelolmo.ud@gmail.com" className="text-primary hover:underline">
+                  villardelolmo.ud@gmail.com
+                </a>.
+              </p>
             </LegalSection>
 
             <LegalSection number="2" title="Qué datos recogemos y para qué">

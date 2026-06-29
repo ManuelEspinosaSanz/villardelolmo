@@ -1,7 +1,7 @@
 import { Header } from "@/components/header"
 import { Footer } from "@/components/footer"
 import { FadeIn } from "@/components/motion"
-import { LegalSection, Pendiente } from "@/components/legal-section"
+import { LegalSection } from "@/components/legal-section"
 import Link from "next/link"
 import { ArrowLeft } from "lucide-react"
 
@@ -31,11 +31,24 @@ export default function AvisoLegalPage() {
 
           <FadeIn>
             <LegalSection number="1" title="Datos del titular">
-              <Pendiente>
-                Nombre legal completo de la entidad, CIF, número de inscripción en el registro de
-                asociaciones deportivas correspondiente, domicilio social y datos de contacto del
-                representante legal.
-              </Pendiente>
+              <p>
+                El titular de este sitio web es <strong>CDE Unión Deportiva Villar del Olmo</strong>,
+                con CIF <strong>G84394519</strong>, inscrito con el número <strong>3931</strong> en
+                la Sección de Clubes Deportivos Elementales del Registro de Entidades Deportivas de
+                la Comunidad de Madrid.
+              </p>
+              <p>
+                Domicilio social: Campo Municipal de Fútbol, 28511 Villar del Olmo, Madrid.
+              </p>
+              <p>
+                Representante legal: Félix Horcajo Magano.
+              </p>
+              <p>
+                Datos de contacto:{" "}
+                <a href="mailto:villardelolmo.ud@gmail.com" className="text-primary hover:underline">
+                  villardelolmo.ud@gmail.com
+                </a>.
+              </p>
             </LegalSection>
 
             <LegalSection number="2" title="Objeto">
